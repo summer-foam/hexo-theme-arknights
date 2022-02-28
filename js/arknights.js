@@ -1,1 +1,367 @@
-var dust=function(){this.x=50,this.y=50,this.vx=2*Math.random()+2,this.vy=2*Math.random(),this.color="#fff",this.shadowBlur=3*Math.random(),this.shadowX=2*Math.random()-1,this.shadowY=2*Math.random()-1,this.radiusX=3*Math.random(),this.radiusY=3*Math.random(),this.rotation=Math.PI*Math.floor(2*Math.random())},canvasDust=function(){function t(t){var e=this;this.width=300,this.height=300,this.dustQuantity=50,this.dustArr=[];var s=document.getElementById(t);if(!s)throw new Error("canvasID 无效");this.canvas=s,this.ctx=s.getContext("2d"),this.build(),window.addEventListener("resize",(function(){return e.resize()}))}return t.prototype.build=function(){var e=this;if(this.resize(),this.ctx){for(var s=0,i=t.getPoint(this.dustQuantity);s<i.length;s++){var n=i[s],o=new dust;this.buildDust(n[0],n[1],o),this.dustArr.push(o)}setInterval((function(){e.play()}),40)}},t.prototype.play=function(){var t,e=this.dustArr;null===(t=this.ctx)||void 0===t||t.clearRect(0,0,this.width,this.height);for(var s=0,i=e;s<i.length;s++){var n=i[s];if(n.x<0||n.y<0){var o=this.width,r=Math.floor(Math.random()*window.innerHeight);n.x=o,n.y=r,this.buildDust(o,r,n)}else{o=n.x-n.vx,r=n.y-n.vy;this.buildDust(o,r,n)}}},t.prototype.buildDust=function(t,e,s){var i=this.ctx;t&&(s.x=t),e&&(s.y=e),i&&(i.beginPath(),i.shadowBlur=s.shadowBlur,i.shadowColor=s.color,i.shadowOffsetX=s.shadowX,i.shadowOffsetY=s.shadowY,i.ellipse(s.x,s.y,s.radiusX,s.radiusY,s.rotation,0,2*Math.PI),i.closePath(),i.fillStyle=s.color,i.fill())},t.prototype.resize=function(){var t=this.canvas,e=window.innerWidth,s=window.innerHeight;this.width=e,this.height=s,this.dustQuantity=Math.floor((e+s)/38),void 0!==t&&(t.width=e,t.height=s)},t.getPoint=function(t){void 0===t&&(t=1);for(var e=[],s=0;s<t;s++){var i=Math.floor(Math.random()*window.innerWidth),n=Math.floor(Math.random()*window.innerHeight);e.push([i,n])}return e},t}(),indexs=function(){function t(){var t=this;this.index=[],this.totop=document.getElementById("to-top"),this.scrollID=null,this.scrolling=0,this.headerLink=document.getElementsByClassName("headerlink"),this.tocLink=document.getElementsByClassName("toc-link"),this.postContent=document.getElementById("post-content");var e=document.getElementById("to-top");null!=e&&(e.style.opacity="0"),this.tocLink.length>0&&(this.setItem(this.tocLink.item(0)),document.addEventListener("scroll",(function(){++t.scrolling,null==t.scrollID&&(t.scrollID=setInterval(t.modifyIndex.bind(t),50)),setTimeout((function(){if(0==--t.scrolling){clearInterval(t.scrollID),t.scrollID=null;var e=document.getElementById("to-top");null!==t.totop&&document.getElementById("post-title").getBoundingClientRect().top<-200?e.style.opacity="1":e.style.opacity="0"}}),200)}),{passive:!0}))}return t.prototype.setItem=function(t){t.classList.add("active");for(var e=t.parentElement.children,s=0;s<e.length;s++){var i=e.item(s);if(i.classList.contains("toc-child")){i.classList.add("has-active");break}}for(var n=t.parentElement;"toc"!=n.classList[0];n=n.parentElement)"toc-child"==n.classList[0]&&n.classList.add("has-active")},t.prototype.reset=function(){for(var t=document.getElementsByClassName("active"),e=document.getElementsByClassName("has-active");t.length;){t.item(0).classList.remove("active")}for(;e.length;){e.item(0).classList.remove("has-active")}},t.prototype.modifyIndex=function(){for(var t=0;t<this.headerLink.length;t++){var e=this.headerLink.item(t);e&&this.index.push(e.getBoundingClientRect().top)}this.reset();for(t=0;t<this.tocLink.length;++t){var s=this.tocLink.item(t);if(t+1==this.index.length||this.index[t+1]>150&&(this.index[t]<=150||0==t)){this.setItem(s);break}}this.index=[]},t.prototype.scrolltop=function(){window.scroll({top:0,left:0,behavior:"smooth"}),document.getElementById("to-top").style.opacity="0"},t}(),codes=function(){function t(){this.findCode()}return t.prototype.reverse=function(t,e,s){var i=t.parentElement;i.classList.contains(e)?(i.classList.remove(e),i.classList.add(s)):(i.classList.remove(s),i.classList.add(e))},t.prototype.doAsMermaid=function(t){var e=t.getElementsByClassName("mermaid").item(0);t.outerHTML='<div class="highlight mermaid">'+e.innerText+"</div>"},t.prototype.resetName=function(t){return"plaintext"==t?"TEXT":"cs"==t?"C#":t.toUpperCase()},t.prototype.doAsCode=function(t){var e=this,s=t.classList[1],i=t.getElementsByClassName("gutter").item(0).children[0].childElementCount>>1;t.classList.add(i<16?"open":"fold"),t.innerHTML='<span class="code-header"><span class="code-title">        <div class="code-icon"></div>'+this.resetName(s)+" 共 "+i+' 行</span>        <span class="code-header-tail">          <button class="code-copy"></button>          <span class="code-space">展开</span>        </span>    </span></span>    <div class="code-box">'+t.innerHTML+"</div>",t.getElementsByClassName("code-copy").item(0).addEventListener("click",(function(e){var s=e.target;navigator.clipboard.writeText(t.getElementsByTagName("code").item(0).innerText),s.classList.add("copied"),setTimeout((function(){return s.classList.remove("copied")}),1200)})),t.getElementsByClassName("code-header").item(0).addEventListener("click",(function(t){t.target.classList.contains("code-copy")||e.reverse(t.currentTarget,"open","fold")}))},t.prototype.findCode=function(){for(var t=document.getElementsByClassName("highlight"),e=0;e<t.length;e++){var s=t.item(e);s.getElementsByClassName("mermaid").length>0?this.doAsMermaid(s):this.doAsCode(s)}},t}(),cursors=function(){function t(){var t=this;this.first=!0,this.outer=document.getElementById("cursor-outer").style,this.effecter=document.getElementById("cursor-effect").style,this.opacity=0,this.ishead=!0,this.moveEventID=null,this.fadeEventID=null,document.querySelector("header").addEventListener("mouseenter",(function(){return t.ishead=!0}),{passive:!0}),document.querySelector("header").addEventListener("mouseout",(function(){return t.ishead=!1}),{passive:!0}),window.addEventListener("mousemove",(function(e){return t.reset(e)}),{passive:!0}),window.addEventListener("click",(function(e){return t.Aeffect(e)}),{passive:!0}),this.pushHolders(),new MutationObserver(this.pushHolders.bind(this)).observe(document,{childList:!0,subtree:!0})}return t.prototype.move=function(){if(void 0!==this.now){var t=this.outer.left,e=this.outer.top,s=Number(t.substring(0,t.length-2)),i=Number(e.substring(0,e.length-2)),n=this.now.x,o=this.now.y,r=(n-s)/13,a=(o-i)/13,h=!0;Math.abs(r)>=.1?(this.outer.left=String(s+r)+"px",h=!1):this.outer.left=String(n)+"px",Math.abs(a)>=.1?(this.outer.top=String(i+a)+"px",h=!1):this.outer.top=String(o)+"px",h&&(clearInterval(this.moveEventID),this.moveEventID=null)}},t.prototype.reset=function(t){null===this.moveEventID&&(this.moveEventID=window.setInterval(this.move.bind(this),1)),this.now=t,this.first&&(this.first=!1,this.outer.left=String(this.now.x)+"px",this.outer.top=String(this.now.y)+"px")},t.prototype.fadeOut=function(){if(this.opacity>0){var t=.11*this.opacity;t<.001&&(t=this.opacity),this.effecter.transform="translate(-50%, -50%) scale("+String(this.scale+=t)+")",this.effecter.opacity=String(this.opacity-=t)}else clearInterval(this.fadeEventID),this.fadeEventID=null},t.prototype.Aeffect=function(t){null===this.fadeEventID&&(this.fadeEventID=window.setInterval(this.fadeOut.bind(this),10),this.effecter.left=String(t.x)+"px",this.effecter.top=String(t.y)+"px",this.effecter.transform="translate(-50%, -50%) scale(0)",this.effecter.opacity="1",this.scale=0,this.opacity=1)},t.prototype.hold=function(){this.outer.height="24px",this.outer.width="24px",this.outer.background="rgba(255, 255, 255, 0.5)"},t.prototype.relax=function(){this.outer.height="36px",this.outer.width="36px",this.outer.background="unset"},t.prototype.pushHolder=function(t){for(var e=this,s=0;s<t.length;s++){var i=t.item(s);i.addEventListener("mouseover",(function(){return e.hold()}),{passive:!0}),i.addEventListener("mouseout",(function(){return e.relax()}),{passive:!0})}},t.prototype.pushHolders=function(){this.pushHolder(document.getElementsByTagName("a")),this.pushHolder(document.getElementsByTagName("input")),this.pushHolder(document.getElementsByTagName("button")),this.pushHolder(document.getElementsByClassName("code-header")),this.pushHolder(document.getElementsByClassName("gt-user-inner")),this.pushHolder(document.getElementsByClassName("gt-header-textarea"))},t}(),index=new indexs,code=new codes,cursor=new cursors;new canvasDust("canvas-dust");
+class dust {
+    constructor() {
+        this.x = 50;
+        this.y = 50;
+        this.vx = Math.random() * 2 + 2;
+        this.vy = Math.random() * 2;
+        this.color = '#fff';
+        this.shadowBlur = Math.random() * 3;
+        this.shadowX = (Math.random() * 2) - 1;
+        this.shadowY = (Math.random() * 2) - 1;
+        this.radiusX = Math.random() * 3;
+        this.radiusY = Math.random() * 3;
+        this.rotation = Math.PI * Math.floor(Math.random() * 2);
+    }
+}
+class canvasDust {
+    constructor(canvasID) {
+        this.width = 300;
+        this.height = 300;
+        this.dustQuantity = 50;
+        this.dustArr = [];
+        const canvas = document.getElementById(canvasID);
+        if (canvas) {
+            this.canvas = canvas;
+            this.ctx = canvas.getContext('2d');
+            this.build();
+            window.addEventListener('resize', () => this.resize());
+        }
+        else {
+            throw new Error('canvasID 无效');
+        }
+    }
+    build() {
+        this.resize();
+        if (this.ctx) {
+            const point = canvasDust.getPoint(this.dustQuantity);
+            for (let i of point) {
+                const dustObj = new dust();
+                this.buildDust(i[0], i[1], dustObj);
+                this.dustArr.push(dustObj);
+            }
+            setInterval(() => {
+                this.play();
+            }, 40);
+        }
+    }
+    play() {
+        var _a;
+        const dustArr = this.dustArr;
+        (_a = this.ctx) === null || _a === void 0 ? void 0 : _a.clearRect(0, 0, this.width, this.height);
+        for (let i of dustArr) {
+            if (i.x < 0 || i.y < 0) {
+                const x = this.width;
+                const y = Math.floor(Math.random() * window.innerHeight);
+                i.x = x;
+                i.y = y;
+                this.buildDust(x, y, i);
+            }
+            else {
+                const x = i.x - i.vx;
+                const y = i.y - i.vy;
+                this.buildDust(x, y, i);
+            }
+        }
+    }
+    buildDust(x, y, dust) {
+        const ctx = this.ctx;
+        if (x)
+            dust.x = x;
+        if (y)
+            dust.y = y;
+        if (ctx) {
+            ctx.beginPath();
+            ctx.shadowBlur = dust.shadowBlur;
+            ctx.shadowColor = dust.color;
+            ctx.shadowOffsetX = dust.shadowX;
+            ctx.shadowOffsetY = dust.shadowY;
+            ctx.ellipse(dust.x, dust.y, dust.radiusX, dust.radiusY, dust.rotation, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = dust.color;
+            ctx.fill();
+        }
+    }
+    resize() {
+        const canvas = this.canvas;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        this.width = width;
+        this.height = height;
+        this.dustQuantity = Math.floor((width + height) / 38);
+        if (canvas !== undefined) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+    }
+    static getPoint(number = 1) {
+        let point = [];
+        for (let i = 0; i < number; i++) {
+            const x = Math.floor(Math.random() * window.innerWidth);
+            const y = Math.floor(Math.random() * window.innerHeight);
+            point.push([x, y]);
+        }
+        return point;
+    }
+}
+class indexs {
+    constructor() {
+        this.index = [];
+        this.totop = document.getElementById('to-top');
+        this.scrollID = null;
+        this.scrolling = 0;
+        this.tocLink = document.getElementsByClassName('toc-link');
+        if (this.tocLink.length > 0) {
+            this.setItem(this.tocLink.item(0));
+        }
+        document.addEventListener('scroll', () => {
+            this.tocLink = document.getElementsByClassName('toc-link');
+            if (this.tocLink.length > 0) {
+                this.headerLink = document.getElementsByClassName('headerlink');
+                this.postContent = document.getElementById('post-content');
+                const totop = document.getElementById('to-top');
+                ++this.scrolling;
+                if (this.scrollID == null && this.tocLink.length > 0) {
+                    this.scrollID = setInterval(this.modifyIndex.bind(this), 50);
+                }
+                setTimeout(() => {
+                    if (--this.scrolling == 0) {
+                        clearInterval(this.scrollID);
+                        this.scrollID = null;
+                        const totop = document.getElementById('to-top');
+                        if (this.totop !== null
+                            && document.getElementById('post-title').getBoundingClientRect().top < -200) {
+                            totop.style.display = '';
+                            setTimeout(() => totop.style.opacity = '1', 300);
+                        }
+                        else {
+                            totop.style.opacity = '0';
+                            setTimeout(() => totop.style.display = 'none', 300);
+                        }
+                    }
+                }, 200);
+            }
+        }, { passive: true });
+    }
+    setItem(item) {
+        item.classList.add('active');
+        let $parent = item.parentElement, brother = $parent.children;
+        for (let i = 0; i < brother.length; i++) {
+            const item = brother.item(i);
+            if (item.classList.contains('toc-child')) {
+                item.classList.add('has-active');
+                break;
+            }
+        }
+        for (let $parent = item.parentElement; $parent.classList[0] != 'toc'; $parent = $parent.parentElement) {
+            if ($parent.classList[0] == 'toc-child') {
+                $parent.classList.add('has-active');
+            }
+        }
+    }
+    reset() {
+        let tocs = document.getElementsByClassName('active');
+        let tocTree = document.getElementsByClassName('has-active');
+        for (; tocs.length;) {
+            const item = tocs.item(0);
+            item.classList.remove('active');
+        }
+        for (; tocTree.length;) {
+            const item = tocTree.item(0);
+            item.classList.remove('has-active');
+        }
+    }
+    modifyIndex() {
+        for (let i = 0; i < this.headerLink.length; i++) {
+            const link = this.headerLink.item(i);
+            if (link) {
+                this.index.push(link.getBoundingClientRect().top);
+            }
+        }
+        this.reset();
+        for (let i = 0; i < this.tocLink.length; ++i) {
+            const item = this.tocLink.item(i);
+            if (i + 1 == this.index.length || (this.index[i + 1] > 150 && (this.index[i] <= 150 || i == 0))) {
+                this.setItem(item);
+                break;
+            }
+        }
+        this.index = [];
+    }
+    scrolltop() {
+        window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+        document.getElementById('to-top').style.opacity = '0';
+        setTimeout(() => this.totop.style.display = 'none', 300);
+    }
+}
+class codes {
+    reverse(item, s0, s1) {
+        const block = item.parentElement;
+        if (block.classList.contains(s0)) {
+            block.classList.remove(s0);
+            block.classList.add(s1);
+        }
+        else {
+            block.classList.remove(s1);
+            block.classList.add(s0);
+        }
+    }
+    doAsMermaid(item) {
+        let Amermaid = item.getElementsByClassName('mermaid').item(0);
+        item.outerHTML = '<div class="highlight mermaid">' + Amermaid.innerText + '</div>';
+    }
+    resetName(str) {
+        if (str == 'plaintext')
+            return 'TEXT';
+        if (str == 'cs')
+            return 'C#';
+        return str.toUpperCase();
+    }
+    doAsCode(item) {
+        const codeType = item.classList[1], lineCount = item.getElementsByClassName('gutter').item(0).children[0].childElementCount >> 1;
+        item.classList.add(lineCount < 16 ? 'open' : 'fold');
+        item.innerHTML =
+            '<span class="code-header"><span class="code-title">\
+        <div class="code-icon"></div>' +
+                this.resetName(codeType) + ' 共 ' + lineCount + ' 行</span>\
+        <span class="code-header-tail">\
+          <button class="code-copy"></button>\
+          <span class="code-space">展开</span>\
+        </span>\
+    </span></span>\
+    <div class="code-box">' + item.innerHTML + '</div>';
+        item.getElementsByClassName('code-copy').item(0).addEventListener('click', (click) => {
+            const button = click.target;
+            navigator.clipboard.writeText(item.getElementsByTagName('code').item(0).innerText);
+            button.classList.add('copied');
+            setTimeout(() => button.classList.remove('copied'), 1200);
+        });
+        item.getElementsByClassName('code-header').item(0).addEventListener('click', (click) => {
+            if (!click.target.classList.contains('code-copy')) {
+                this.reverse(click.currentTarget, 'open', 'fold');
+            }
+        });
+    }
+    findCode() {
+        let codeBlocks = document.getElementsByClassName('highlight');
+        for (let i = 0; i < codeBlocks.length; i++) {
+            const item = codeBlocks.item(i);
+            if (item.getElementsByClassName('mermaid').length > 0) {
+                this.doAsMermaid(item);
+            }
+            else {
+                this.doAsCode(item);
+            }
+        }
+    }
+    constructor() { }
+}
+class cursors {
+    constructor() {
+        this.first = true;
+        this.outer = document.getElementById('cursor-outer').style;
+        this.effecter = document.getElementById('cursor-effect').style;
+        this.opacity = 0;
+        this.ishead = true;
+        this.moveEventID = null;
+        this.fadeEventID = null;
+        document.querySelector('header').addEventListener('mouseenter', () => this.ishead = true, { passive: true });
+        document.querySelector('header').addEventListener('mouseout', () => this.ishead = false, { passive: true });
+        window.addEventListener('mousemove', mouse => this.reset(mouse), { passive: true });
+        window.addEventListener('click', mouse => this.Aeffect(mouse), { passive: true });
+        this.pushHolders();
+        const observer = new MutationObserver(this.pushHolders.bind(this));
+        observer.observe(document, { childList: true, subtree: true });
+    }
+    move() {
+        if (this.now !== undefined) {
+            let SX = this.outer.left, SY = this.outer.top;
+            let preX = Number(SX.substring(0, SX.length - 2)), preY = Number(SY.substring(0, SY.length - 2));
+            let nxtX = this.now.x, nxtY = this.now.y;
+            let delX = (nxtX - preX) / 13, delY = (nxtY - preY) / 13;
+            let equal = true;
+            if (Math.abs(delX) >= 0.1) {
+                this.outer.left = String(preX + delX) + 'px';
+                equal = false;
+            }
+            else {
+                this.outer.left = String(nxtX) + 'px';
+            }
+            if (Math.abs(delY) >= 0.1) {
+                this.outer.top = String(preY + delY) + 'px';
+                equal = false;
+            }
+            else {
+                this.outer.top = String(nxtY) + 'px';
+            }
+            if (equal) {
+                clearInterval(this.moveEventID);
+                this.moveEventID = null;
+            }
+        }
+    }
+    reset(mouse) {
+        if (this.moveEventID === null) {
+            this.moveEventID = window.setInterval(this.move.bind(this), 1);
+        }
+        this.now = mouse;
+        if (this.first) {
+            this.first = false;
+            this.outer.left = String(this.now.x) + 'px';
+            this.outer.top = String(this.now.y) + 'px';
+        }
+    }
+    fadeOut() {
+        if (this.opacity > 0) {
+            let delta = this.opacity * 0.11;
+            if (delta < 0.001) {
+                delta = this.opacity;
+            }
+            this.effecter.transform = 'translate(-50%, -50%) scale(' + String(this.scale += delta) + ')';
+            this.effecter.opacity = String((this.opacity -= delta));
+        }
+        else {
+            clearInterval(this.fadeEventID);
+            this.fadeEventID = null;
+        }
+    }
+    Aeffect(mouse) {
+        if (this.fadeEventID === null) {
+            this.fadeEventID = window.setInterval(this.fadeOut.bind(this), 10);
+            this.effecter.left = String(mouse.x) + 'px';
+            this.effecter.top = String(mouse.y) + 'px';
+            this.effecter.transform = 'translate(-50%, -50%) scale(0)';
+            this.effecter.opacity = '1';
+            this.scale = 0;
+            this.opacity = 1;
+        }
+    }
+    hold() {
+        this.outer.height = '24px';
+        this.outer.width = '24px';
+        this.outer.background = "rgba(255, 255, 255, 0.5)";
+    }
+    relax() {
+        this.outer.height = '36px';
+        this.outer.width = '36px';
+        this.outer.background = "unset";
+    }
+    pushHolder(items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items.item(i);
+            item.addEventListener('mouseover', () => this.hold(), { passive: true });
+            item.addEventListener('mouseout', () => this.relax(), { passive: true });
+        }
+    }
+    pushHolders() {
+        this.pushHolder(document.getElementsByTagName('a'));
+        this.pushHolder(document.getElementsByTagName('input'));
+        this.pushHolder(document.getElementsByTagName('button'));
+        this.pushHolder(document.getElementsByClassName('code-header'));
+        this.pushHolder(document.getElementsByClassName('gt-user-inner'));
+        this.pushHolder(document.getElementsByClassName('gt-header-textarea'));
+    }
+}
+let index = new indexs();
+let code = new codes();
+let cursor = new cursors();
+new canvasDust('canvas-dust');

@@ -705,6 +705,9 @@ footer {
   padding: 0 3px 30px 3px;
   font-family: BenderLight;
 }
+footer nobr {
+  line-height: 28px;
+}
 
 #logo {
   user-select: none;
@@ -840,6 +843,11 @@ footer {
 #post-info time {
   color: #2bf;
   font-weight: 900;
+}
+#post-info .control {
+  text-align: left;
+  display: inline-block;
+  width: 90px;
 }
 
 #post-source span {
